@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flappy Bird</title>
+  </head>
+  <body style="background-image: url('bg.png'); background-size: cover;">
+    <div id="gameplay"></div>
+  </body>
+  <style>
+    .upperblock {
+      background-image: url("topside.png");
+      background-size: cover;
+      background-position: bottom;
+      width: 100px;
+      height: 400px;
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      transition: cubic-bezier(0.075, 0.82, 0.165, 1);
+    }
+
+    .bottomblock {
+      background-image: url("bottomside.png");
+      background-size: cover;
+      width: 100px;
+      height: 200px;
+      position: absolute;
+      bottom: 0px;
+      right: 0px;
+      transition: cubic-bezier(0.075, 0.82, 0.165, 1);
+    }
+  </style>
+  <script>
+    function addBlocksPair(idSeq) {
+      var boxContainer = document.createDocumentFragment();
+      var upperbox = document.createElement("div");
+      upperbox.classList.add("upperblock");
+      upperbox.id = "u" + idSeq;
+      upperbox.style.right = "0px";
+
+      var bottombox = document.createElement("div");
+      bottombox.classList.add("bottomblock");
+      bottombox.id = "b" + idSeq;
+      bottombox.style.right = "0px";
+      // adding the box to the container
+      boxContainer.append(upperbox);
+      boxContainer.append(bottombox);
+      document.getElementById("gameplay").appendChild(boxContainer);
+    }
+
+    function removeBlocksPair(upperElement, bottomElement) {
+      upperElement.parentNode.removeChild(upperElement);
+      bottomElement.parentNode.removeChild(bottomElement);
+    }
+
+    function moveForward(upperElement, bottomElement, speed) {
+      // delete once reached screensize
+      var screensize = parseInt(screen.width);
+      //screensize = 300;
+      var intt = setInterval(() => {
+        var currenUpperElementtright = parseInt(upperElement.style.right);
+        var currenBottomElementtright = parseInt(bottomElement.style.right);
+        upperElement.style.right = currenUpperElementtright + 10 + "px";
+        bottomElement.style.right = currenBottomElementtright + 10 + "px";
+        if (currenUpperElementtright > screensize) {
+          clearInterval(intt);
+          removeBlocksPair(upperElement, bottomElement);
+        }
+      }, speed);
+    }
+
+    // Main function
+    function FlappyBirdGamplay(init) {
+      var blockSequence = init;
+      var gameFlow = setInterval(() => {
+        addBlocksPair(blockSequence);
+        moveForward(
+          document.getElementById("u" + blockSequence),
+          document.getElementById("b" + blockSequence),
+          30
+        );
+        blockSequence += 1;
+      }, 1500);
+    }
+
+    FlappyBirdGamplay(0);
+  </script>
+</html>
