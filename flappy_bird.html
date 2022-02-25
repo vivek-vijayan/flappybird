@@ -5,46 +5,134 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flappy Bird</title>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="sweetalert2.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+    <link
+      href="//db.onlinewebfonts.com/c/364d81f3f71bc524d2235f8b406e732b?family=Flappy+Bird"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.min.css"
+    />
+    <script src="sweetalert2.all.min.js"></script>
   </head>
-  <body style="background-image: url('bg.png'); background-size: cover;">
-    <div id="gameplay"></div>
+  <body>
+    <div id="outerframe" class="normal"></div>
+    <div id="gameplay" onkeypress="show()">
+      <div class="bird" id="bird" style="left: 250px; top: 400px"></div>
+      <div class="scoreBoard" id="score">Score: 100</div>
+    </div>
   </body>
   <style>
+    @font-face {
+      font-family: Flappy;
+      src: url(Flappy-Bird.ttf);
+    }
+    body {
+      font-family: Flappy;
+      height: 100%;
+      width: 100%;
+      margin: 0px;
+    }
     .upperblock {
       background-image: url("topside.png");
       background-size: cover;
       background-position: bottom;
-      width: 100px;
-      height: 400px;
+      width: 200px;
       position: absolute;
       top: 0px;
-      right: 0px;
-      transition: cubic-bezier(0.075, 0.82, 0.165, 1);
     }
 
     .bottomblock {
       background-image: url("bottomside.png");
       background-size: cover;
-      width: 100px;
-      height: 200px;
+      width: 200px;
       position: absolute;
       bottom: 0px;
       right: 0px;
+    }
+
+    .scoreBoard {
+      position: absolute;
+      font-family: Flappy;
+      top: 20px;
+      right: 30px;
+      border: solid 10px #037768;
+      padding: 30px;
+      font-size: 100px;
+      color: #037768;
+      background-color: rgb(255, 255, 255);
+      z-index: 2;
+    }
+
+    .bird {
+      background-image: url("bird.gif");
+      background-size: cover;
+      z-index: 2;
+      width: 130px;
+      height: 130px;
+      position: absolute;
+      top: 250px;
+      left: 250px;
       transition: cubic-bezier(0.075, 0.82, 0.165, 1);
+    }
+
+    .fadeall {
+      filter: blur(10px);
+      background-color: #037768;
+    }
+
+    .normal {
+      top: 0px;
+      right: 0px;
+      left: 0px;
+      bottom: 0px;
+      position: absolute;
+      background-image: url("bg.png");
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+
+    .swal2-popup {
+      font-size: 3rem !important;
+      font-weight: 100;
+      font-style: normal;
     }
   </style>
   <script>
+    // Gloval variables
+    var score = 0;
+    document.getElementById("score").innerHTML = "Score : " + score;
+
     function addBlocksPair(idSeq) {
+      //  Generating a random height
+      let topHeight = Math.floor(Math.random() * (screen.height / 1.5) + 1);
+      let bottomHeight = parseInt(screen.height / 1) - topHeight - 250;
+
       var boxContainer = document.createDocumentFragment();
       var upperbox = document.createElement("div");
       upperbox.classList.add("upperblock");
       upperbox.id = "u" + idSeq;
       upperbox.style.right = "0px";
-
+      upperbox.style.height = topHeight + "px";
       var bottombox = document.createElement("div");
       bottombox.classList.add("bottomblock");
       bottombox.id = "b" + idSeq;
       bottombox.style.right = "0px";
+      bottombox.style.height = bottomHeight + "px";
       // adding the box to the container
       boxContainer.append(upperbox);
       boxContainer.append(bottombox);
@@ -58,13 +146,17 @@
 
     function moveForward(upperElement, bottomElement, speed) {
       // delete once reached screensize
-      var screensize = parseInt(screen.width);
+      var screensize = parseInt(screen.width + 400);
       //screensize = 300;
       var intt = setInterval(() => {
         var currenUpperElementtright = parseInt(upperElement.style.right);
         var currenBottomElementtright = parseInt(bottomElement.style.right);
         upperElement.style.right = currenUpperElementtright + 10 + "px";
         bottomElement.style.right = currenBottomElementtright + 10 + "px";
+        if (currenUpperElementtright === screen.width - 250) {
+          score += 10;
+          document.getElementById("score").innerHTML = "Score : " + score;
+        }
         if (currenUpperElementtright > screensize) {
           clearInterval(intt);
           removeBlocksPair(upperElement, bottomElement);
@@ -72,18 +164,66 @@
       }, speed);
     }
 
+    function sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+    
     // Main function
-    function FlappyBirdGamplay(init) {
+    async function FlappyBirdGamplay(init) {
       var blockSequence = init;
-      var gameFlow = setInterval(() => {
+      var x = 0;
+      while (x < 100) {
+        await sleep(700);
         addBlocksPair(blockSequence);
         moveForward(
-          document.getElementById("u" + blockSequence),
-          document.getElementById("b" + blockSequence),
-          30
+          document.getElementById("u" + x),
+          document.getElementById("b" + x),
+          15
         );
         blockSequence += 1;
-      }, 1500);
+         document.addEventListener(
+           "mousemove",
+           function (e) {
+             e = e || window.event;
+             var dragY = e.pageY;
+             if (dragY < screen.height - 100) {
+               
+               document.getElementById("bird").style.top = dragY + "px";
+             }
+           },
+           false
+         );
+
+        x += 1;
+      }
+      var empty = 0;
+      while (empty < 5) {
+        await sleep(700);
+        empty += 1;
+      }
+      if (1) {
+        var birdFlew = 10;
+        while (
+          parseInt(document.getElementById("bird").style.left) <
+          screen.width + 400
+        ) {
+          document.getElementById("bird").style.left =
+            parseInt(document.getElementById("bird").style.left) +
+            birdFlew +
+            "px";
+          await sleep(10);
+        }
+        document.getElementById("outerframe").classList.add("fadeall");
+      }
+      Swal.fire({
+        title: "CONGRATULATIONS !!!! \n YOU WON",
+        text: "Thanks for using my application",
+        imageUrl: "bird.gif",
+        imageWidth: 400,
+        imageHeight: 300,
+        imageAlt: "Custom image",
+        size: 100,
+      });
     }
 
     FlappyBirdGamplay(0);
