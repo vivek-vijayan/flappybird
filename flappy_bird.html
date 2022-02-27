@@ -32,8 +32,10 @@
     <script src="sweetalert2.all.min.js"></script>
   </head>
   <body>
-    <video
-      id="video"
+    <video id="video" autoplay style="display: none; width: 300px;
+    height: 200px;"></video>
+    <canvas
+      id="canvas"
       autoplay="true"
       style="
         width: 300px;
@@ -42,10 +44,10 @@
         top: 100px;
         left: 50px;
         z-index: 10;
-        border-radius: 50px;
+        border-radius: 10px;
         border: rgb(255, 255, 255) 10px solid;
       "
-    ></video>
+    ></canvas>
     <div id="outerframe" class="normal"></div>
     <div id="gameplay" onkeypress="show()">
       <div class="bird" id="bird" style="left: 450px; top: 400px"></div>
@@ -154,12 +156,12 @@
   <script>
     var video = document.getElementById("video");
     var model;
-    //var ctx;
-    //ctx = document.getElementById("canvas").getContext("2d");
+    var ctx;
+    ctx = document.getElementById("canvas").getContext("2d");
     const setupCamera = () => {
       navigator.mediaDevices
         .getUserMedia({
-          video: { width: 600, height: 400 },
+          video: { width: 300, height: 200 },
           audio: false,
         })
         .then((stream) => {
@@ -172,8 +174,21 @@
         document.getElementById("video"),
         false
       );
+      ctx.drawImage(video, 0, 0, 300, 200);
       document.getElementById("bird").style.top =
-        parseInt(prediction[0].topLeft[0] * 1.8) + "px";
+        parseInt(prediction[0].topLeft[0] * 2.5) + 200 + "px";
+        prediction.forEach((pred) => {
+        ctx.beginPath();
+        ctx.lineWidth = "4";
+        ctx.strokeStyle = "red";
+        ctx.rect(
+          pred.topLeft[0],
+          pred.topLeft[1],
+          pred.bottomRight[0] - pred.topLeft[0],
+          pred.bottomRight[1] - pred.topLeft[1],
+          )
+        ctx.stroke();
+    });
     };
 
     async function startup() {
